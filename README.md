@@ -166,6 +166,10 @@ Adds a simple download manager to your WordPress blog.
 1. Go to `WP-Admin -> Appearance -> Widgets`
 1. The widget name is `Downloads`.
 
+### Requiring an unlock key in the user's cookies
+1. Configure the Unlock Cookie Prefix and Unlock Key in `WP-Admin -> Downloads -> Download Options`
+2. Upload a file and set the Require Unlock Key option in the permissions
+2. In your template, when you want the user to be able to download a file (e.g. after submitting a form), call the `downloadmanager_set_unlock_key_in_cookie()` function and provide a link to the file.
 
 ## Upgrading
 

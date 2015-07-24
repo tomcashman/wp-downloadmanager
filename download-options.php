@@ -31,9 +31,12 @@ $base_page = 'admin.php?page='.$base_name;
 ### If Form Is Submitted
 if(! empty( $_POST['Submit'] ) ) {
 	check_admin_referer('wp-downloadmanager_options');
+    $download_path = ! empty( $_POST['download_path'] ) ? trim( $_POST['download_path'] ) : '';
 	$download_path = ! empty( $_POST['download_path'] ) ? trim( $_POST['download_path'] ) : '';
 	$download_path_url = ! empty( $_POST['download_path_url'] ) ? trim( $_POST['download_path_url'] ) : '';
 	$download_page_url = ! empty( $_POST['download_page_url'] ) ? trim( $_POST['download_page_url'] ) : '';
+    $download_unlock_cookie_prefix = ! empty( $_POST['download_unlock_cookie_prefix'] ) ? trim( $_POST['download_unlock_cookie_prefix'] ) : '';
+    $download_unlock_key = ! empty( $_POST['download_unlock_key'] ) ? trim( $_POST['download_unlock_key'] ) : '';
 	$download_nice_permalink = ! empty( $_POST['download_nice_permalink'] ) ? intval( $_POST['download_nice_permalink'] ) : 0;
 	$download_options_use_filename =  ! empty( $_POST['download_options_use_filename'] ) ? intval( $_POST['download_options_use_filename'] ) : 0;
 	$download_options_rss_sortby =  ! empty( $_POST['download_options_rss_sortby'] ) ? strip_tags( trim( $_POST['download_options_rss_sortby'] ) ) : '';
@@ -62,6 +65,8 @@ if(! empty( $_POST['Submit'] ) ) {
 	$update_download_queries[] = update_option('download_page_url', $download_page_url);
 	$update_download_queries[] = update_option('download_nice_permalink', $download_nice_permalink);
 	$update_download_queries[] = update_option('download_options', $download_options);
+    $update_download_queries[] = update_option('download_unlock_cookie_prefix', $download_unlock_cookie_prefix);
+    $update_download_queries[] = update_option('download_unlock_key', $download_unlock_key);
 	$update_download_queries[] = update_option('download_method', $download_method);
 	$update_download_queries[] = update_option('download_categories', $download_categories);
 	$update_download_queries[] = update_option('download_sort', $download_sort);
@@ -70,6 +75,8 @@ if(! empty( $_POST['Submit'] ) ) {
 	$update_download_text[] = __('Download Page URL', 'wp-downloadmanager');
 	$update_download_text[] = __('Download Nice Permalink', 'wp-downloadmanager');
 	$update_download_text[] = __('Download Options', 'wp-downloadmanager');
+    $update_download_text[] = __('Download Unlock Cookie Prefix', 'wp-downloadmanager');
+    $update_download_text[] = __('Download Unlock Key', 'wp-downloadmanager');
 	$update_download_text[] = __('Download Method', 'wp-downloadmanager');
 	$update_download_text[] = __('Download Categories', 'wp-downloadmanager');
 	$update_download_text[] = __('Download Sorting', 'wp-downloadmanager');
@@ -146,6 +153,14 @@ $download_options = get_option('download_options');
 					<br />
 					<?php _e('Change it to <strong>File ID</strong> when you encounter 404 error.', 'wp-downloadmanager'); ?>
 				</td>
+			</tr>
+            <tr valign="top">
+				<th><?php _e('Download Unlock Cookie Prefix:', 'wp-downloadmanager'); ?></th>
+				<td><input type="text" name="download_unlock_cookie_prefix" value="<?php echo stripslashes(get_option('download_unlock_cookie_prefix')); ?>" size="50" dir="ltr" /><br /><?php _e('The prefix for your unlock key cookie (usually your website name).', 'wp-downloadmanager'); ?></td>
+			</tr>
+            <tr valign="top">
+				<th><?php _e('Download Unlock Key:', 'wp-downloadmanager'); ?></th>
+				<td><input type="text" name="download_unlock_key" value="<?php echo stripslashes(get_option('download_unlock_key')); ?>" size="50" dir="ltr" /><br /><?php _e('The value of the unlock key required for files that use the Require Unlock Key permission setting', 'wp-downloadmanager'); ?></td>
 			</tr>
 			<tr valign="top">
 				<th><?php _e('Download Method:', 'wp-downloadmanager'); ?></th>

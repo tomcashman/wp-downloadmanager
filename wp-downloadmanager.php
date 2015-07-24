@@ -189,7 +189,8 @@ function download_file() {
 		$file_name = stripslashes($file->file);
 		$file_permission = intval($file->file_permission);
 		$current_user = wp_get_current_user();
-		if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1) {
+        $cookie_key = get_option('download_unlock_cookie_prefix').'_unlock_key';
+		if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && isset($_COOKIE[$cookie_key]) && strcmp($_COOKIE[$cookie_key], get_option('download_unlock_key')) == 0)) {
 			$update_hits = $wpdb->query("UPDATE $wpdb->downloads SET file_hits = (file_hits + 1), file_last_downloaded_date = '".current_time('timestamp')."' WHERE file_id = $file_id AND file_permission != -2");
 			if(!is_remote_file($file_name)) {
 				if(!is_file($file_path.$file_name)) {
@@ -928,6 +929,9 @@ function file_timestamp($file_timestamp) {
 function file_permission($file_permission) {
 	$file_permission_name = '';
 	switch(intval($file_permission)) {
+		case -3:
+			$file_permission_name = __('Require Unlock Key', 'wp-downloadmanager');
+			break;
 		case -2:
 			$file_permission_name = __('Hidden', 'wp-downloadmanager');
 			break;
@@ -1468,6 +1472,9 @@ function downloadmanager_activation( $network_wide )
 	}
 }
 
+function downloadmanager_set_unlock_key_in_cookie() {
+    setcookie(get_option('download_unlock_cookie_prefix').'_unlock_key', get_option('download_unlock_key'), time()+(60*60*4), COOKIEPATH, COOKIE_DOMAIN, false);
+}
 
 function downloadmanager_activate() {
 	global $wpdb, $blog_id;
@@ -1505,6 +1512,8 @@ function downloadmanager_activate() {
 							"PRIMARY KEY (file_id)) $charset_collate;";
 	maybe_create_table($wpdb->downloads, $create_table);
 	// WP-Downloads Options
+    add_option('download_unlock_cookie_prefix', 'my_site_name', 'Download Unlock Cookie Prefix');
+    add_option('download_unlock_key', uniqid(), 'Download Unlock Key');
 	if (function_exists('is_site_admin')) {
 		add_option('download_path', WP_CONTENT_DIR.'/blogs.dir/'.$blog_id.'/files', 'Download Path');
 		add_option('download_path_url', WP_CONTENT_URL.'/blogs.dir/'. $blog_id.'/files', 'Download Path URL');

@@ -363,6 +363,7 @@ switch($mode) {
 						<td><strong><?php _e('Allowed To Download:', 'wp-downloadmanager') ?></strong></td>
 						<td>
 							<select name="file_permission" size="1">
+                                <option value="-3" <?php selected('-3', $file->file_permission); ?>><?php _e('Require Unlock Key', 'wp-downloadmanager'); ?></option>
 								<option value="-2" <?php selected('-2', $file->file_permission); ?>><?php _e('Hidden', 'wp-downloadmanager'); ?></option>
 								<option value="-1" <?php selected('-1', $file->file_permission); ?>><?php _e('Everyone', 'wp-downloadmanager'); ?></option>
 								<option value="0" <?php selected('0', $file->file_permission); ?>><?php _e('Registered Users Only', 'wp-downloadmanager'); ?></option>
