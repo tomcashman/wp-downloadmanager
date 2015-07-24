@@ -1031,11 +1031,12 @@ function download_embedded($condition = '', $display = 'both', $sort_by = 'file_
 		{
 			$stream_limit = min($stream_limit, count($files));
 		}
+        $cookie_key = get_option('download_unlock_cookie_prefix').'_unlock_key';
 		for ($i = 0; $i < $stream_limit; $i++) {
 			$file = $files[$i];
 			$file_permission = intval($file->file_permission);
 			$template_download_embedded = $template_download_embedded_temp;
-			if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1) {
+			if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && isset($_COOKIE[$cookie_key]) && strcmp($_COOKIE[$cookie_key], get_option('download_unlock_key')) == 0)) {
 				$template_download_embedded = stripslashes($template_download_embedded[0]);
 			} else {
 				$template_download_embedded = stripslashes($template_download_embedded[1]);
