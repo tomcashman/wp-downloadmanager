@@ -189,8 +189,8 @@ function download_file() {
 		$file_name = stripslashes($file->file);
 		$file_permission = intval($file->file_permission);
 		$current_user = wp_get_current_user();
-        $cookie_key = get_option('download_unlock_cookie_prefix').'_unlock_key';
-		if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && isset($_COOKIE[$cookie_key]) && strcmp($_COOKIE[$cookie_key], get_option('download_unlock_key')) == 0)) {
+        
+		if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && downloadmanager_has_unlock_key_in_cookie())) {
 			$update_hits = $wpdb->query("UPDATE $wpdb->downloads SET file_hits = (file_hits + 1), file_last_downloaded_date = '".current_time('timestamp')."' WHERE file_id = $file_id AND file_permission != -2");
 			if(!is_remote_file($file_name)) {
 				if(!is_file($file_path.$file_name)) {
@@ -1036,7 +1036,7 @@ function download_embedded($condition = '', $display = 'both', $sort_by = 'file_
 			$file = $files[$i];
 			$file_permission = intval($file->file_permission);
 			$template_download_embedded = $template_download_embedded_temp;
-			if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && isset($_COOKIE[$cookie_key]) && strcmp($_COOKIE[$cookie_key], get_option('download_unlock_key')) == 0)) {
+			if(($file_permission > 0 && intval($current_user->wp_user_level) >= $file_permission && intval($user_ID) > 0) || ($file_permission == 0 && intval($user_ID) > 0) || $file_permission == -1 || ($file_permission == -3 && downloadmanager_has_unlock_key_in_cookie())) {
 				$template_download_embedded = stripslashes($template_download_embedded[0]);
 			} else {
 				$template_download_embedded = stripslashes($template_download_embedded[1]);
@@ -1475,6 +1475,19 @@ function downloadmanager_activation( $network_wide )
 
 function downloadmanager_set_unlock_key_in_cookie() {
     setcookie(get_option('download_unlock_cookie_prefix').'_unlock_key', get_option('download_unlock_key'), time()+(60*60*4), COOKIEPATH, COOKIE_DOMAIN, false);
+}
+
+function downloadmanager_has_unlock_key_in_cookie() {
+    $cookie_key = get_option('download_unlock_cookie_prefix').'_unlock_key';
+    if(isset($_COOKIE[$cookie_key])) {
+        return strcmp($_COOKIE[$cookie_key], get_option('download_unlock_key')) == 0;
+    }
+    return false;
+}
+
+function downloadmanager_file_requires_unlock_key($dl_id) {
+    $file = $wpdb->get_row("SELECT file_id, file, file_permission FROM $wpdb->downloads WHERE file_id = $dl_id AND file_permission != -2");
+    return intval($file->file_permission) == -3;
 }
 
 function downloadmanager_activate() {
